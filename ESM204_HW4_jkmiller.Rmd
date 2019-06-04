@@ -1,0 +1,90 @@
+---
+title: "ESM 204 - Assignment 4"
+author: "Jamie Miller"
+date: "June 4, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(janitor)
+library(stargazer)
+
+```
+
+```{r}
+#Read in the HW4 Data 
+HW4 <- read.csv("HW4Data.csv") %>% 
+  clean_names()
+```
+
+```{r}
+#Problem 1: Write down a plausible functional form for the marginal cost of abatement for sector A. Use regression analysis to estimate the parameters of that function.
+
+#Use regression to estimate the parameters of the function for Sectors A, B, C, and D 
+#Functional Form = y = intercept + slope * X variable + error 
+
+mc_a_lm <- lm(mc_a ~ abatement, data = HW4)
+#mc_a_lm
+
+#Coefficients include the following such as the: 
+#Intercept: -8.6445 
+#Abatement = 0.5768 
+
+#Y = 0.5768X - 8.6445 
+
+mc_b_lm <- lm(mc_b ~ abatement, data = HW4)
+#mc_b_lm
+#Linear Equation: y = 0.1987x + 9.3177 
+
+mc_c_lm <- lm(mc_c ~ abatement, data = HW4)
+#mc_c_lm
+#Linear Equation: y = 0.7838x - 11.6550 
+
+mc_d_lm <- lm(mc_d ~ abatement, data = HW4)
+#mc_d_lm
+#Linear Equation: y = 0.2599x + 9.6875
+
+
+```
+
+
+```{r}
+# gather df so graphing is easier
+# Marginal Abatement Cost dataframe
+
+mac_df <- gather(HW4, key = "sector", value = "marginal_cost", "mc_a", "mc_b", "mc_c", "mc_d")
+mac_df
+
+
+```
+
+```{r}
+# graph it!
+# can change colors
+
+cols <- c("mc_a" = "red", "mc_b" = "blue", "mc_c" = "darkgreen", "mc_d" = "orange")
+labels <- c("mc_a" = "A", "mc_b" = "B", "mc_c" = "C", "mc_d" = "D")
+
+mac_graph <- ggplot(mac_df, aes(x = abatement, y = marginal_cost)) +
+  geom_point(aes(color = sector)) +
+  geom_smooth(aes(color = sector), se = FALSE, method = lm) +
+  scale_color_manual(values = cols,
+                     labels = labels,
+                     name = "Sector") + 
+#  scale_x_continuous(expand = c(0,0)) +
+#  scale_y_continuous(expand = c(0,0)) +
+  theme_classic() + 
+  labs(x = "Carbon Abatement (tons)", y = "Abatement Cost ($/ton)")
+  
+  
+
+mac_graph
+
+```
+
+
+
+
+

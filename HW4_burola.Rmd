@@ -1,0 +1,97 @@
+---
+title: "HW4RMD"
+author: "Nathaniel Burola and Jamie Miller"
+date: "June 3, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#Installing packages into the RMD. 
+library(tidyverse)
+library(knitr)
+library(readr)
+library(kableExtra)
+```
+
+```{r}
+#Read in the HW4 Data into the RMD. 
+HW4 <- read.csv("HW4Data.csv")
+HW4
+```
+
+```{r}
+#Problem 1: Write down a plausible functional form for the marginal cost of abatement for sector A. Use regression analysis to estimate the parameters of that function.
+
+#Functional Form = y = intercept + slope * X variable + error 
+
+Alinear <- lm(mca ~ abatement, data = HW4)
+
+#Use regression to estimate the parameters of the function for Sector A 
+
+#Coefficients include the following such as the: 
+#Intercept: -8.6445 
+#Abatement = 0.5768 
+
+#Y = 0.5768X - 8.6445 
+```
+
+```{r}
+#Running the functional form for Sectors B, C, and D 
+
+Blinear <- lm(mcb ~ abatement, data = HW4)
+
+Blinear
+
+#Use regressio to estimate parameters of the function for Sector B 
+
+#Coefficients are: 
+#Intercept: 9.3177 
+#Abatement: 0.1987 
+
+#Linear Equation: y = 0.1987x + 9.3177 
+
+Clinear <- lm(mcc ~ abatement, data = HW4)
+
+Clinear
+
+#Coefficients are: 
+#Intercept: -11.6550 
+#Abatement: 0.7838
+
+#Linear Equation: y = 0.7838x - 11.6550 
+
+Dlinear <- lm(mcd ~ abatement, data = HW4)
+
+Dlinear
+
+#Coefficients are: 
+#Intercept: 9.6875 
+#Abatement: 0.2599 
+
+#Linear Equation: y = 0.2599x + 9.6875 
+```
+
+```{r}
+#Testing to make sure that the derived linear equations match the data provided in HW4 
+
+sp <- ggplot(HW4, aes(x=abatement, y=mca)) + 
+  geom_point(size = 2, shape = 23) + 
+  geom_smooth(method=Alinear)
+
+coeff=coefficients(Alinear)
+# Equation of the line : 
+eq = paste0("y = ", round(coeff[2],1), "*x + ", round(coeff[1],1))
+# Plot
+sp + geom_abline(intercept = -8.6445, slope = 0.5768)+
+  ggtitle(eq)
+# Change line type, color and size
+sp + geom_abline(intercept = -8.6445, slope = 0.5768, color="red", 
+                 linetype="dashed", size=1.5)+
+  ggtitle("Marginal Cost of Abatement for Sector A")
+
+```
+
