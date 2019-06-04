@@ -49,14 +49,27 @@ mc_d_lm <- lm(mc_d ~ abatement, data = HW4)
 
 ```
 
+```{r, results = 'asis'}
+# stargazer table
+
+mac_lm_table <- stargazer(mc_a_lm, mc_b_lm, mc_c_lm, mc_d_lm,
+                          type = 'html', 
+                          #single.row = TRUE,
+                          align = TRUE,
+                          title = "Table 1. Marginal abatement cost function for each sector.",
+                          dep.var.labels = c("A", "B","C","D"), 
+                          covariate.labels = c("Abatement", "Constant"),
+                          add.lines = list(c("AIC", round(AIC(mc_a_lm),1), round(AIC(mc_b_lm),1), round(AIC(mc_c_lm),1), round(AIC(mc_d_lm),1))))
+```
+
+
 
 ```{r}
 # gather df so graphing is easier
 # Marginal Abatement Cost dataframe
 
 mac_df <- gather(HW4, key = "sector", value = "marginal_cost", "mc_a", "mc_b", "mc_c", "mc_d")
-mac_df
-
+#mac_df
 
 ```
 
