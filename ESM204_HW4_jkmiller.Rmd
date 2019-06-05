@@ -19,6 +19,7 @@ HW4 <- read.csv("HW4Data.csv") %>%
   clean_names()
 ```
 
+# Question 1. Functional form for the marginal cost of abatement for each sector
 ```{r}
 #Problem 1: Write down a plausible functional form for the marginal cost of abatement for sector A. Use regression analysis to estimate the parameters of that function.
 
@@ -45,8 +46,6 @@ mc_c_lm <- lm(mc_c ~ abatement, data = HW4)
 mc_d_lm <- lm(mc_d ~ abatement, data = HW4)
 #mc_d_lm
 #Linear Equation: y = 0.2599x + 9.6875
-
-
 ```
 
 ```{r, results = 'asis'}
@@ -62,20 +61,17 @@ mac_lm_table <- stargazer(mc_a_lm, mc_b_lm, mc_c_lm, mc_d_lm,
                           add.lines = list(c("AIC", round(AIC(mc_a_lm),1), round(AIC(mc_b_lm),1), round(AIC(mc_c_lm),1), round(AIC(mc_d_lm),1))))
 ```
 
-
-
 ```{r}
 # gather df so graphing is easier
 # Marginal Abatement Cost dataframe
 
 mac_df <- gather(HW4, key = "sector", value = "marginal_cost", "mc_a", "mc_b", "mc_c", "mc_d")
 #mac_df
-
 ```
 
 ```{r}
 # graph it!
-# can change colors
+# can change line/point colors if we want
 
 cols <- c("mc_a" = "red", "mc_b" = "blue", "mc_c" = "darkgreen", "mc_d" = "orange")
 labels <- c("mc_a" = "A", "mc_b" = "B", "mc_c" = "C", "mc_d" = "D")
@@ -83,6 +79,7 @@ labels <- c("mc_a" = "A", "mc_b" = "B", "mc_c" = "C", "mc_d" = "D")
 mac_graph <- ggplot(mac_df, aes(x = abatement, y = marginal_cost)) +
   geom_point(aes(color = sector)) +
   geom_smooth(aes(color = sector), se = FALSE, method = lm) +
+#  facet_grid(~sector) +
   scale_color_manual(values = cols,
                      labels = labels,
                      name = "Sector") + 
@@ -90,12 +87,168 @@ mac_graph <- ggplot(mac_df, aes(x = abatement, y = marginal_cost)) +
 #  scale_y_continuous(expand = c(0,0)) +
   theme_classic() + 
   labs(x = "Carbon Abatement (tons)", y = "Abatement Cost ($/ton)")
-  
-  
 
 mac_graph
+```
+
+#Question 2. Demand curves for carbon emissions
+```{r}
+# carbon emissions for each sector
+
+emm_a = 180
+emm_b = 200
+emm_c = 220
+emm_d = 300
+
+#y = mx + b
+#Coefficients include the following such as the: 
+#Intercept: -8.6445 
+#Abatement = 0.5768 
+
+#Y = 0.5768X - 8.6445 
+
+### create function to calculate demand curves
+# make variables
+slope_a <- mc_a_lm$coefficients[2]
+intercept_a <- mc_a_lm$coefficients[1]
+
+slope_b <- mc_b_lm$coefficients[2]
+intercept_b <- mc_b_lm$coefficients[1]
+
+slope_c <- mc_c_lm$coefficients[2]
+intercept_c <- mc_c_lm$coefficients[1]
+
+slope_d <- mc_d_lm$coefficients[2]
+intercept_d <- mc_d_lm$coefficients[1]
+
+
+# create funtion to calculate new y intercepts
+curve_a <- function(x) {
+   slope_a*x + intercept_a
+}
+curve_b <- function(x) {
+   slope_b*x + intercept_b
+}
+curve_c <- function(x) {
+   slope_c*x + intercept_c
+}
+curve_d <- function(x) {
+   slope_d*x + intercept_d
+}
+
+
+# plug in x = carbon emmisions for each sector for new y intercepts
+y_intercept_a <- curve_a(emm_a)
+y_intercept_b <- curve_b(emm_b)
+y_intercept_c <- curve_c(emm_c)
+y_intercept_d <- curve_d(emm_d)
+
+
+# Sector demand; determine new slope 
+
+#SectorA Demand Curve
+demand_a = function(x) {
+  demand = (-y_intercept_a/emm_a)*x + y_intercept_a
+}
+#SectorB Demand Curve
+demand_b = function(x) {
+  demand = (-y_intercept_b/emm_b)*x + y_intercept_b
+}
+#SectorC Demand Curve
+demand_c = function(x) {
+  demand = (-y_intercept_c/emm_c)*x + y_intercept_c
+}
+#SectorD Demand Curve
+demand_d = function(x) {
+  demand = (-y_intercept_d/emm_d)*x + y_intercept_d
+}
+
+
 
 ```
+
+
+```{r}
+# Draw demand curves
+
+#cols <- c("mc_a" = "red", "mc_b" = "blue", "mc_c" = "darkgreen", "mc_d" = "orange")
+#labels <- c("mc_a" = "A", "mc_b" = "B", "mc_c" = "C", "mc_d" = "D")
+
+
+demand_graph <- ggplot(data.frame(x=c(0,350)), aes(x=x)) + # gives ggplot something to graph
+  stat_function(fun=demand_a, geom = "line", aes(color = "A")) +
+  stat_function(fun=demand_b, geom = "line", aes(color = "B")) +
+  stat_function(fun=demand_c, geom = "line", aes(color = "C")) +
+  stat_function(fun=demand_d, geom = "line", aes(color = "D")) +
+  scale_y_continuous(limits= c(0,120), expand = c(0,0)) +
+  scale_x_continuous(limits= c(0, 350), expand = c(0,0))
+
+
+demand_graph
+
+
+
+```
+
+
+```{r}
+
+
+ggplot(data.frame(x=c(0,200)), aes(x=x)) + 
+  stat_function(fun=demand_a, geom ="line", aes(color = "Demand A")) + 
+  stat_function(fun=demand_b, geom ="line", aes(color = "Demand B")) +
+  stat_function(fun=demand_c, geom ="line", aes(color = "Demand C")) +
+  stat_function(fun=demand_d, geom ="line", aes(color = "Demand D")) +
+  labs(x = "Emission", y = "Price")+
+  scale_x_continuous(limits =c(0,200), expand = c(0,0))+
+  scale_y_continuous(limits=c(0,200), expand=c(0,0))+
+  theme_bw()
+
+
+```
+
+```{r}
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
