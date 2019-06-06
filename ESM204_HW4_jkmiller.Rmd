@@ -1,5 +1,5 @@
 ---
-title: "ESM 204 - Assignment 4"
+title: "ESM 204 - Assignment 4: Technical Appendix"
 author: "Jamie Miller"
 date: "June 4, 2019"
 output: html_document
@@ -8,48 +8,44 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
-library(janitor)
-library(stargazer)
+library(janitor) # clean_names() for snake_case
+library(stargazer) # makes a nice stargazer table for the regression results
 
 ```
 
-```{r}
+```{r, include = FALSE}
 #Read in the HW4 Data 
 HW4 <- read.csv("HW4Data.csv") %>% 
   clean_names()
 ```
 
-# Question 1. Functional form for the marginal cost of abatement for each sector
-```{r}
-#Problem 1: Write down a plausible functional form for the marginal cost of abatement for sector A. Use regression analysis to estimate the parameters of that function.
+###1. Marginal Cost of Abatement for Each Sector
+```{r, echo = FALSE}
+# Problem 1: Write down a plausible functional form for the marginal cost of abatement for sector A.
+# Use regression analysis to estimate the parameters of that function.
 
-#Use regression to estimate the parameters of the function for Sectors A, B, C, and D 
-#Functional Form = y = intercept + slope * X variable + error 
+# Use regression to estimate the parameters of the function for Sectors A, B, C, and D 
+# Functional Form = y = intercept + slope * X variable + error 
+
+# Coefficients include the following: 
+# Intercept: -8.6445 
+# Abatement = 0.5768 
 
 mc_a_lm <- lm(mc_a ~ abatement, data = HW4)
-#mc_a_lm
-
-#Coefficients include the following such as the: 
-#Intercept: -8.6445 
-#Abatement = 0.5768 
-
-#Y = 0.5768X - 8.6445 
+#mc_a_lm   # y = 0.5768X - 8.6445 
 
 mc_b_lm <- lm(mc_b ~ abatement, data = HW4)
-#mc_b_lm
-#Linear Equation: y = 0.1987x + 9.3177 
+#mc_b_lm  # y = 0.1987x + 9.3177 
 
 mc_c_lm <- lm(mc_c ~ abatement, data = HW4)
-#mc_c_lm
-#Linear Equation: y = 0.7838x - 11.6550 
+#mc_c_lm  # y = 0.7838x - 11.6550 
 
 mc_d_lm <- lm(mc_d ~ abatement, data = HW4)
-#mc_d_lm
-#Linear Equation: y = 0.2599x + 9.6875
+#mc_d_lm  # y = 0.2599x + 9.6875
 ```
 
-```{r, results = 'asis'}
-# stargazer table
+```{r, results = 'asis', echo = FALSE}
+# Create a stargazer table with summary of regression results
 
 mac_lm_table <- stargazer(mc_a_lm, mc_b_lm, mc_c_lm, mc_d_lm,
                           type = 'html', 
@@ -61,7 +57,7 @@ mac_lm_table <- stargazer(mc_a_lm, mc_b_lm, mc_c_lm, mc_d_lm,
                           add.lines = list(c("AIC", round(AIC(mc_a_lm),1), round(AIC(mc_b_lm),1), round(AIC(mc_c_lm),1), round(AIC(mc_d_lm),1))))
 ```
 
-```{r}
+```{r, include = FALSE}
 # gather df so graphing is easier
 # Marginal Abatement Cost dataframe
 
@@ -69,7 +65,7 @@ mac_df <- gather(HW4, key = "sector", value = "marginal_cost", "mc_a", "mc_b", "
 #mac_df
 ```
 
-```{r}
+```{r, echo = FALSE}
 # graph it!
 # can change line/point colors if we want
 
@@ -84,31 +80,32 @@ mac_graph <- ggplot(mac_df, aes(x = abatement, y = marginal_cost)) +
                      labels = labels,
                      name = "Sector") + 
 #  scale_x_continuous(expand = c(0,0)) +
-#  scale_y_continuous(expand = c(0,0)) +
-  theme_classic() + 
+ # scale_y_continuous(expand = c(0,0)) +
+  theme_bw() + 
   labs(x = "Carbon Abatement (tons)", y = "Abatement Cost ($/ton)")
 
 mac_graph
 ```
 
-#Question 2. Demand curves for carbon emissions
-```{r}
-# carbon emissions for each sector
+**Figure 1. Estimated marginal abatement cost functions for each sector.**
+
+
+###2. Demand curves for carbon emissions
+```{r, echo = FALSE}
+# current carbon emissions for each sector
+# Sectors A, B, and C are in country X. Sector D is in a different country, Y.
+# Prices are in $/ton and quantities are in tons
 
 A = 180
 B = 200
 C = 220
 D = 300
 
-#y = mx + b
-#Coefficients include the following such as the: 
-#Intercept: -8.6445 
-#Abatement = 0.5768 
-
-#Y = 0.5768X - 8.6445 
+# y = mx + b
+# y = 0.5768X - 8.6445 
 
 ### create function to calculate demand curves
-# make variables
+# make and store variables for slope and y-intercept 
 slope_a <- mc_a_lm$coefficients[2]
 intercept_a <- mc_a_lm$coefficients[1]
 
@@ -122,7 +119,8 @@ slope_d <- mc_d_lm$coefficients[2]
 intercept_d <- mc_d_lm$coefficients[1]
 
 
-# create funtion to calculate new y intercepts
+# create funtion to calculate new y intercepts. 
+# These functions are the equations of the marginal cost of abatement curves for each sector
 curve_a <- function(x) {
    slope_a*x + intercept_a
 }
@@ -137,51 +135,56 @@ curve_d <- function(x) {
 }
 
 
-# plug in x = carbon emmisions for each sector for new y intercepts
+# the new y-intercepts (y_intercept_*) for each sector are calculated by plugging in x = current carbon emmisions to the marginal abatement cost functions and solving for y
 y_intercept_a <- curve_a(A)
 y_intercept_b <- curve_b(B)
 y_intercept_c <- curve_c(C)
 y_intercept_d <- curve_d(D)
 
 
-# Sector demand; determine new slope 
+# calculate demand curves for carbon emissions for each sector
+# determine new slope by (y0-y1)/(x0-x1) = (0-y_intercept_a)/(A-0)
 
-#SectorA Demand Curve
 demand_a = function(x) {
   demand = (-y_intercept_a/A)*x + y_intercept_a
 }
-#SectorB Demand Curve
+
 demand_b = function(x) {
   demand = (-y_intercept_b/B)*x + y_intercept_b
 }
-#SectorC Demand Curve
+
 demand_c = function(x) {
   demand = (-y_intercept_c/C)*x + y_intercept_c
 }
-#SectorD Demand Curve
+
 demand_d = function(x) {
   demand = (-y_intercept_d/D)*x + y_intercept_d
 }
-
-
-
 ```
 
-
-```{r}
+```{r, echo = FALSE, warning = FALSE}
 # Draw demand curves
 
-#cols <- c("mc_a" = "red", "mc_b" = "blue", "mc_c" = "darkgreen", "mc_d" = "orange")
-#labels <- c("mc_a" = "A", "mc_b" = "B", "mc_c" = "C", "mc_d" = "D")
+#cols_2 <- c("demand_a" = "red", "demand_b" = "blue", "demand_c" = "darkgreen", "demand_d" = "orange")
+#labels_2 <- c("demand_a" = "A", "demand_b" = "B", "demand_c" = "C", "demand_d" = "D")
+# these colors and labels didn't work
 
+# create colors and labels for graph to match figure 1
+cols_demand <- c("red", "blue", "darkgreen", "orange")
+labels_demand <- c("A", "B", "C", "D")
 
-demand_graph <- ggplot(data.frame(x=c(0,350)), aes(x=x)) + # gives ggplot something to graph
-  stat_function(fun=demand_a, geom = "line", aes(color = "A")) +
-  stat_function(fun=demand_b, geom = "line", aes(color = "B")) +
-  stat_function(fun=demand_c, geom = "line", aes(color = "C")) +
-  stat_function(fun=demand_d, geom = "line", aes(color = "D")) +
-  scale_y_continuous(limits= c(0,120), expand = c(0,0)) +
-  scale_x_continuous(limits= c(0, 350), expand = c(0,0))
+demand_graph <- ggplot(data.frame(x=c(0,350)), aes(x=x)) + # data.frame gives ggplot something to graph
+  stat_function(fun=demand_a, geom = "line", aes(color = "A"), size = 1) +
+  stat_function(fun=demand_b, geom = "line", aes(color = "B"), size = 1) +
+  stat_function(fun=demand_c, geom = "line", aes(color = "C"), size = 1) +
+  stat_function(fun=demand_d, geom = "line", aes(color = "D"), size = 1) +
+  scale_y_continuous(limits= c(0,175), expand = c(0,0)) +
+  scale_x_continuous(limits= c(0, 300), expand = c(0,0)) +
+  scale_color_manual(values = cols_demand,
+                     labels = labels_demand,
+                     name = "Sector") + 
+  theme_bw() + 
+  labs(x = "Carbon Abatement (tons)", y = "Abatement Cost ($/ton)")
 
 
 demand_graph
@@ -190,30 +193,42 @@ demand_graph
 
 ```
 
+**Figure 2. Carbon demand curves for each sector.**
 
-#Part 3. Co-benefits of carbon abatement
+###3. Country X Policy options
 (1) the total cost of meeting the target in country X,
 (2) the cost (or benefit) to each sector, and 
 (3) the tax revenue generated.
 
-```{r}
+Perhaps create a table to show all the results.
+
+```{r, include = FALSE}
 # 3. a) Cap on carbon
 
 ################################
-# 1. Total cost of meeting target  in country X
+# 1. Total cost of meeting target in country X
 
 # reduced carbon emissions for each sector
 # Using marginal cost curves
-
+# integrate the area under the marginal abatement cost curves for 0 to 100 tons of carbon abatement
+# gives total cost of carbon abatement for 100 tons carbon for each sector
+# sum the the total costs for each sector to get the total cost for country X
 
 lossA_cost = integrate(curve_a, 0, 100)
 lossB_cost = integrate(curve_b, 0, 100)
 lossC_cost = integrate(curve_c, 0, 100)
 country_loss_cost = lossA_cost$value + lossB_cost$value + lossC_cost$value  
 
-# $6,698.88
+# The total cost of meeting carbon targets in country X is $6,698.88.
 
-# The total cost
+# using demand curves
+#lossA = integrate(demand_a, 0, 100)
+#lossB = integrate(demand_b, 0, 100)
+#lossC = integrate(demand_c, 0, 100)
+#country_loss_demand = lossA$value + lossB$value + lossC$value  
+
+# $22,979.05 = total demand. do not use this. this is wrong. so very wrong.
+
 
 ################################
 # 2. Total cost for each sector
@@ -221,38 +236,60 @@ country_loss_cost_a = lossA_cost$value # $2,019.76
 country_loss_cost_b = lossB_cost$value # $1,925.49
 country_loss_cost_c = lossC_cost$value # $2,753.63
 
-# using dmeand curves
-#lossA = integrate(demand_a, 0, 100)
-#lossB = integrate(demand_b, 0, 100)
-#lossC = integrate(demand_c, 0, 100)
-#country_loss_demand = lossA$value + lossB$value + lossC$value  
-
-# $22,979.05 = total demand. do not use this.
-
 
 ################################
 # 3. Tax revenue generated
 # To emit a ton of carbon in country X, you must pay a tax of $t. You will need to find the tax that accomplishes the desired reduction.
-# so is there no tax generated on this? Are we supposed to assume a certain tax anmount?
-
-
+# so is there no tax generated on this? Are we supposed to assume a certain tax amount? or is this 3.b)?
 ```
 
 
+
+####Below this point is a work in progress
+```{r}
+# 3. b) Tax on carbon
+#calculating an aggregate supply curve (Sag = MagP + Bag)
+
+Mag =(1/mc_a_lm$coefficients[2])+(1/mc_b_lm$coefficients[2])+(1/mc_c_lm$coefficients[2])
+Bag = (-(mc_a_lm$coefficients[1]/mc_a_lm$coefficients[2])-(mc_b_lm$coefficients[1]/mc_b_lm$coefficients[2])-(mc_c_lm$coefficients[1]/mc_c_lm$coefficients[2]))
+
+# Sag = 8.04x -17
+
+
+supplyA = function(x){
+  (x - mc_a_lm$coefficients[1])/(mc_a_lm$coefficients[2])
+  }
+supplyB = function(x){
+  (x - mc_b_lm$coefficients[1])/(mc_b_lm$coefficients[2])
+}
+supplyC = function(x){
+  (x - mc_c_lm$coefficients[1])/(mc_c_lm$coefficients[2])
+}
+
+
+agsupply = function(x) {
+  (x + Bag)/Mag
+}
+taxprice = agsupply(300)
+taxprice
+
+
+
+supplyA(taxprice) +
+supplyB(taxprice) +
+supplyC(taxprice)
+
+
+
+```
 
 
 ```{r}
-# 3. b) Tax on carbon
-
-
-
-# 2. Total cost (or benefit) to each sector
-
-
-
 
 ```
 
+
+# 2. Total cost (or benefit) to each sector
 
 ```{r}
 
