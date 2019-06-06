@@ -95,10 +95,10 @@ mac_graph
 ```{r}
 # carbon emissions for each sector
 
-emm_a = 180
-emm_b = 200
-emm_c = 220
-emm_d = 300
+A = 180
+B = 200
+C = 220
+D = 300
 
 #y = mx + b
 #Coefficients include the following such as the: 
@@ -138,29 +138,29 @@ curve_d <- function(x) {
 
 
 # plug in x = carbon emmisions for each sector for new y intercepts
-y_intercept_a <- curve_a(emm_a)
-y_intercept_b <- curve_b(emm_b)
-y_intercept_c <- curve_c(emm_c)
-y_intercept_d <- curve_d(emm_d)
+y_intercept_a <- curve_a(A)
+y_intercept_b <- curve_b(B)
+y_intercept_c <- curve_c(C)
+y_intercept_d <- curve_d(D)
 
 
 # Sector demand; determine new slope 
 
 #SectorA Demand Curve
 demand_a = function(x) {
-  demand = (-y_intercept_a/emm_a)*x + y_intercept_a
+  demand = (-y_intercept_a/A)*x + y_intercept_a
 }
 #SectorB Demand Curve
 demand_b = function(x) {
-  demand = (-y_intercept_b/emm_b)*x + y_intercept_b
+  demand = (-y_intercept_b/B)*x + y_intercept_b
 }
 #SectorC Demand Curve
 demand_c = function(x) {
-  demand = (-y_intercept_c/emm_c)*x + y_intercept_c
+  demand = (-y_intercept_c/C)*x + y_intercept_c
 }
 #SectorD Demand Curve
 demand_d = function(x) {
-  demand = (-y_intercept_d/emm_d)*x + y_intercept_d
+  demand = (-y_intercept_d/D)*x + y_intercept_d
 }
 
 
@@ -191,23 +191,15 @@ demand_graph
 ```
 
 
+#Part 3. Co-benefits of carbon abatement
 ```{r}
+# 1. Total cost of meeting target  in country X
 
 
-ggplot(data.frame(x=c(0,200)), aes(x=x)) + 
-  stat_function(fun=demand_a, geom ="line", aes(color = "Demand A")) + 
-  stat_function(fun=demand_b, geom ="line", aes(color = "Demand B")) +
-  stat_function(fun=demand_c, geom ="line", aes(color = "Demand C")) +
-  stat_function(fun=demand_d, geom ="line", aes(color = "Demand D")) +
-  labs(x = "Emission", y = "Price")+
-  scale_x_continuous(limits =c(0,200), expand = c(0,0))+
-  scale_y_continuous(limits=c(0,200), expand=c(0,0))+
-  theme_bw()
 
 
-```
 
-```{r}
+
 
 
 ```
@@ -215,8 +207,22 @@ ggplot(data.frame(x=c(0,200)), aes(x=x)) +
 
 
 
+```{r}
+# 2. Total cost (or benefit) to each sector
 
 
+
+
+```
+
+
+```{r}
+# 3. Tax revenue generated
+
+
+
+
+```
 
 
 
