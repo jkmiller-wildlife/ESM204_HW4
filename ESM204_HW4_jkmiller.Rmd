@@ -192,14 +192,48 @@ demand_graph
 
 
 #Part 3. Co-benefits of carbon abatement
+(1) the total cost of meeting the target in country X,
+(2) the cost (or benefit) to each sector, and 
+(3) the tax revenue generated.
+
 ```{r}
+# 3. a) Cap on carbon
+
+################################
 # 1. Total cost of meeting target  in country X
 
+# reduced carbon emissions for each sector
+# Using marginal cost curves
 
 
+lossA_cost = integrate(curve_a, 0, 100)
+lossB_cost = integrate(curve_b, 0, 100)
+lossC_cost = integrate(curve_c, 0, 100)
+country_loss_cost = lossA_cost$value + lossB_cost$value + lossC_cost$value  
+
+# $6,698.88
+
+# The total cost
+
+################################
+# 2. Total cost for each sector
+country_loss_cost_a = lossA_cost$value # $2,019.76
+country_loss_cost_b = lossB_cost$value # $1,925.49
+country_loss_cost_c = lossC_cost$value # $2,753.63
+
+# using dmeand curves
+#lossA = integrate(demand_a, 0, 100)
+#lossB = integrate(demand_b, 0, 100)
+#lossC = integrate(demand_c, 0, 100)
+#country_loss_demand = lossA$value + lossB$value + lossC$value  
+
+# $22,979.05 = total demand. do not use this.
 
 
-
+################################
+# 3. Tax revenue generated
+# To emit a ton of carbon in country X, you must pay a tax of $t. You will need to find the tax that accomplishes the desired reduction.
+# so is there no tax generated on this? Are we supposed to assume a certain tax anmount?
 
 
 ```
@@ -208,6 +242,10 @@ demand_graph
 
 
 ```{r}
+# 3. b) Tax on carbon
+
+
+
 # 2. Total cost (or benefit) to each sector
 
 
@@ -217,6 +255,10 @@ demand_graph
 
 
 ```{r}
+
+
+
+
 # 3. Tax revenue generated
 
 
