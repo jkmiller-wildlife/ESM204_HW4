@@ -188,9 +188,6 @@ demand_graph <- ggplot(data.frame(x=c(0,350)), aes(x=x)) + # data.frame gives gg
 
 
 demand_graph
-
-
-
 ```
 
 **Figure 2. Carbon demand curves for each sector.**
@@ -250,12 +247,22 @@ country_loss_cost_c = lossC_cost$value # $2,753.63
 # 3. b) Tax on carbon
 #calculating an aggregate supply curve (Sag = MagP + Bag)
 
-Mag =(1/mc_a_lm$coefficients[2])+(1/mc_b_lm$coefficients[2])+(1/mc_c_lm$coefficients[2])
-Bag = (-(mc_a_lm$coefficients[1]/mc_a_lm$coefficients[2])-(mc_b_lm$coefficients[1]/mc_b_lm$coefficients[2])-(mc_c_lm$coefficients[1]/mc_c_lm$coefficients[2]))
+Mag =(1/mc_a_lm$coefficients[2])+(1/mc_b_lm$coefficients[2])+(1/mc_c_lm$coefficients[2]) # aggregate slope
+Bag = (-(mc_a_lm$coefficients[1]/mc_a_lm$coefficients[2])-(mc_b_lm$coefficients[1]/mc_b_lm$coefficients[2])-(mc_c_lm$coefficients[1]/mc_c_lm$coefficients[2])) # aggregate y-intercept
 
-# Sag = 8.04x -17
+# Sag = 8.04*P -17
 
+# this function rearranges aggregate supply curve in terms of price
+agsupply = function(x) {
+  (x - Bag)/Mag
+}
 
+#to find the tax, plug in aggregate supply of 300 
+taxprice = agsupply(300)
+taxprice
+# Tax price = $39.42
+
+# to find supply of 
 supplyA = function(x){
   (x - mc_a_lm$coefficients[1])/(mc_a_lm$coefficients[2])
   }
@@ -267,19 +274,11 @@ supplyC = function(x){
 }
 
 
-agsupply = function(x) {
-  (x + Bag)/Mag
-}
-taxprice = agsupply(300)
-taxprice
+supplyA(taxprice) # 83.33489
+supplyB(taxprice) # 151.4956
+supplyC(taxprice) # 65.16953
 
-
-
-supplyA(taxprice) +
-supplyB(taxprice) +
-supplyC(taxprice)
-
-
+# Becky and Tara got these same numbers
 
 ```
 
