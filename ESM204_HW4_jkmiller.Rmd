@@ -20,7 +20,7 @@ HW4 <- read.csv("HW4Data.csv") %>%
 ```
 
 ###1. Marginal Cost of Abatement for Each Sector
-```{r, echo = FALSE}
+```{r}
 # Problem 1: Write down a plausible functional form for the marginal cost of abatement for sector A.
 # Use regression analysis to estimate the parameters of that function.
 
@@ -91,7 +91,7 @@ mac_graph
 
 
 ###2. Demand curves for carbon emissions
-```{r, echo = FALSE}
+```{r}
 # current carbon emissions for each sector
 # Sectors A, B, and C are in country X. Sector D is in a different country, Y.
 # Prices are in $/ton and quantities are in tons
@@ -199,7 +199,9 @@ demand_graph
 
 Perhaps create a table to show all the results.
 
-```{r, include = FALSE}
+a. Cap on carbon. Each sector (A, B, and C) must cut its carbon emissions by 100 tons (thus
+reducing total emissions from 600 down to 300).
+```{r}
 # 3. a) Cap on carbon
 
 ################################
@@ -243,7 +245,8 @@ country_loss_cost_c = lossC_cost$value # $4,244.95
 ```
 
 
-
+b. Tax on carbon. To emit a ton of carbon in country X, you must pay a tax of $t. You will need to
+find the tax that accomplishes the desired reduction.
 ```{r}
 # 3. b) Tax on carbon
 #calculating an aggregate supply curve (Sag = MagP + Bag)
@@ -285,7 +288,6 @@ supplyTot = supplyA(taxprice) + supplyB(taxprice) +supplyC(taxprice) # Checked t
 
 ```
 
-
 ```{r}
 # 3b question:
 # 1. Total cost of meeting target in country X
@@ -317,90 +319,65 @@ country_loss_tax_cost_c = lossC_tax_cost$value # $904.93 Sector C
 
 
 tax_revenue = taxprice*300
+#tax_revenue
 
-# Total tax revenue under this policy is $11,828.00
-
+# Total tax revenue under this policy is $11,827.97
 
 ```
 
 
 
 ####Below this point is a work in progress
+
+c. Cap and trade. Each sector (A, B, C) is allocated carbon permits equal to their current emissions
+minus 100 (same as in (a) above), thus achieving the total reduction of 300. Then, these three
+sectors are allowed to trade with each other. You will need to derive the outcome of that
+trading.
 ```{r}
-# 3. c) Cap and trade
-#calculating an aggregate supply curve (Sag = MagP + Bag)
 
-Mag =(1/mc_a_lm$coefficients[2])+(1/mc_b_lm$coefficients[2])+(1/mc_c_lm$coefficients[2]) # aggregate slope
-Bag = (-(mc_a_lm$coefficients[1]/mc_a_lm$coefficients[2])-(mc_b_lm$coefficients[1]/mc_b_lm$coefficients[2])-(mc_c_lm$coefficients[1]/mc_c_lm$coefficients[2])) # aggregate y-intercept
+# The Sector abatement is the amount of carbon that each sector abates at the tax price.
+# This is the level that they want to abate at so they don't have to pay more than the tax when they are abating carbon.
 
-# Sag = 8.04*P -17
+sectorAabatement = supplyA(taxprice) # 83.3
+sectorBabatement = supplyB(taxprice) # 151
+sectorCabatement = supplyC(taxprice) # 65.2
+#80, 100, 120 
 
-# this function rearranges aggregate supply curve in terms of price
-agsupply = function(x) {
-  (x - Bag)/Mag
-}
+# Integrate under the marginal abatement curve to the supply of carbon at the tax price
+lossA_trade = integrate(curve_a, 0, supplyA(taxprice))
+lossB_trade = integrate(curve_b, 0, supplyB(taxprice))
+lossC_trade = integrate(curve_c, 0, supplyA(taxprice))
 
-#to find the tax, plug in aggregate supply of 300 
-taxprice = agsupply(300)
-taxprice
-# Tax price = $39.42
+# TC_A = A + t*[(180 - 100) - supplyA(taxprice)] 
 
-# to find supply of 
-supplyA = function(x){
-  (x - mc_a_lm$coefficients[1])/(mc_a_lm$coefficients[2])
-  }
-supplyB = function(x){
-  (x - mc_b_lm$coefficients[1])/(mc_b_lm$coefficients[2])
-}
-supplyC = function(x){
-  (x - mc_c_lm$coefficients[1])/(mc_c_lm$coefficients[2])
-}
+TC_A = lossA_trade$value + taxprice*((A - 100) - supplyA(taxprice))
+TC_A
+
+# 1022.85, so cost is reduced
+
+lossA_trade$value
+
+## Sector B
+sectorBabatement*taxprice + lossB_trade$value
+## Sector C
+sectorCabatement*taxprice + lossC_trade$value
 
 
-supplyA(taxprice) # 83.33489 tons carbon
-supplyB(taxprice) # 151.4956 tons carbon
-supplyC(taxprice) # 65.16953 tons carbon
 
-supplyTot = supplyA(taxprice) + supplyB(taxprice) +supplyC(taxprice) # Checked that the sum is 300. It is.
 
-# Becky and Tara got similar numbers
+
+
+#Cap and trade costs
+lossA_t$value + (96.7-80)*
+lossB_t$value - (100-48.5)*taxprice
+lossC_t$value + (154.8-120)*taxprice
+
+
 
 ```
 
 
 ```{r}
-# 3c question:
-# 1. Total cost of meeting target in country X
-
-# reduced carbon emissions for each sector
-# Using marginal cost curves
-# integrate the area under the marginal abatement cost curves for 0 to 100 tons of carbon abatement
-# gives total cost of carbon abatement for 100 tons carbon for each sector
-# sum the the total costs for each sector to get the total cost for country X
-
-lossA_tax_cost = integrate(curve_a, 0, supplyA(taxprice))
-lossB_tax_cost = integrate(curve_b, 0, supplyB(taxprice))
-lossC_tax_cost = integrate(curve_c, 0, supplyC(taxprice))
-country_loss_tax_cost = lossA_tax_cost$value + lossB_tax_cost$value + lossC_tax_cost$value  
-
-# The total cost of meeting carbon targets in country X is $5,879.81.
-
-
-################################
-# 2. Total cost for each sector
-country_loss_tax_cost_a = lossA_tax_cost$value # $1,282.61 Sector A
-country_loss_tax_cost_b = lossB_tax_cost$value # $3692.27 Sector B
-country_loss_tax_cost_c = lossC_tax_cost$value # $904.93 Sector C
-
-
-################################
-# 3. Tax revenue generated
-# To emit a ton of carbon in country X, you must pay a tax of $t. You will need to find the tax that accomplishes the desired reduction.
-
-
-tax_revenue = taxprice*300
-
-# Total tax revenue under this policy is $11,828.00
 
 
 ```
@@ -427,8 +404,26 @@ tax_revenue = taxprice*300
 
 
 
+**From Madeline**
+###Part 5
+Now assume that every ton of carbon emissions creates 1 ton of local air pollution. Local air pollution
+causes economic damages (health, environmental, etc.), but only in the country in which it is emitted.
+Assume there are no local air pollution regulations in either country X or country Y.
+a. In a carbon cap and trade market that only covers sectors in country X, how much local air
+pollution would you expect in country X? In country Y?
+
+#Should 300 in each. 
 
 
+b. If country Y enters the carbon market for country X (as in question 4 above), how much local
+pollution will there be in country X and country Y?
+
+#222.6 tons of carbon in Y, 377.3 tons of carbon in X
+
+c. What advice can you give country X and country Y about the desirability of allowing
+international trade of carbon emissions credits?
+
+#From this question it seems that country X would end up emitting lots more carbon with the cap and trade program. There are winners and losers. 
 
 
 
