@@ -354,39 +354,35 @@ lossC_trade = integrate(curve_c, 0, supplyC(taxprice))
 lossC_trade$value # 904.9294
 
 
-# Integrate under the marginal abatement curve to the supply of carbon at the tax price
-lossA_trade_diff = integrate(curve_a, 80, supplyA(taxprice))
-lossA_trade_diff$value # 128.2757
 
-lossB_trade_diff = integrate(curve_b, 100, supplyB(taxprice))
-lossB_trade_diff$value # 1766.78
+cost_A_trade <- lossA_trade$value + (100 - supplyA(taxprice))*taxprice
+cost_A_trade
+# 1939.66
 
-lossC_trade_diff = integrate(curve_c, 120, supplyC(taxprice))
-lossC_trade_diff$value # -3340
+cost_B_trade <- lossB_trade$value + (100 - supplyB(taxprice))*taxprice
+cost_B_trade
+#  1661.977
 
-
-# take the differences
-diff_a = lossA_trade$value - lossA_trade_diff$value
-diff_a
-diff_b = lossB_trade$value - lossB_trade_diff$value
-diff_b
-diff_c = lossC_trade$value - lossC_trade_diff$value
-diff_c
+cost_C_trade <- lossC_trade$value + (100 - supplyC(taxprice))*taxprice
+cost_C_trade
+#  2278.176 
 
 
-
-cost_country = diff_a + diff_b + diff_c
-cost_country
+cost_country_trade = cost_A_trade + cost_B_trade + cost_C_trade
+cost_country_trade
 
 
 
 ```
 
 
+
 **From Madeline**
 ###4. Country Y Included in Carbon Market
 ```{r}
-agsupply_y = function(Q) {(Q + (sectorA$coefficients[1]/sectorA$coefficients[2]) + (sectorB$coefficients[1]/sectorB$coefficients[2]) + (sectorC$coefficients[1]/sectorC$coefficients[2]) + (sectorD$coefficients[1]/sectorD$coefficients[2])) / ((1/sectorA$coefficients[2]) + (1/sectorB$coefficients[2]) + (1/sectorC$coefficients[2]) + (1/sectorD$coefficients[2]))}
+agsupply_y = function(x) {
+  (x + (curve_a$coefficients[1]/curve_a$coefficients[2]) + (curve_b$coefficients[1]/curve_b$coefficients[2]) + (curve_c$coefficients[1]/curve_c$coefficients[2]) + (curve_d$coefficients[1]/curve_d$coefficients[2])) / ((1/curve_a$coefficients[2]) + (1/curve_b$coefficients[2]) + (1/curve_c$coefficients[2]) + (1/curve_d$coefficients[2]))
+  }
 #80, 100, 120, 300s
 
 taxprice_y = agsupply_y(300)
