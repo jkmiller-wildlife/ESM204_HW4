@@ -479,53 +479,30 @@ F Statistic (df = 1; 14)
 <li>the cost (or benefit) to each sector, and</li>
 <li>the tax revenue generated.</li>
 </ol>
-<pre class="r"><code># 3. a) Cap on carbon
-
-################################
-# 1. Total cost of meeting target in country X
-
-# reduced carbon emissions for each sector
-# Using marginal cost curves
-# integrate the area under the marginal abatement cost curves for 0 to 100 tons of carbon abatement
-# gives total cost of carbon abatement for 100 tons carbon for each sector
-# sum the the total costs for each sector to get the total cost for country X
-
-lossA_cost = integrate(curve_a, 0, 100)
-lossB_cost = integrate(curve_b, 0, 100)
-lossC_cost = integrate(curve_c, 0, 100)
-country_loss_cost = lossA_cost$value + lossB_cost$value + lossC_cost$value  
-
-# The total cost of meeting carbon targets in country X is $6,698.88.
-
-# using demand curves
-#lossA = integrate(demand_a, 0, 100)
-#lossB = integrate(demand_b, 0, 100)
-#lossC = integrate(demand_c, 0, 100)
-#country_loss_demand = lossA$value + lossB$value + lossC$value  
-
-# $22,979.05 = total demand. do not use this. this is wrong. so very wrong.
-
-
-################################
-# 2. Total cost for each sector
-country_loss_cost_a = lossA_cost$value # $2,019.76
-country_loss_cost_b = lossB_cost$value # $1,925.49
-country_loss_cost_c = lossC_cost$value # $2,753.63
-
-
-################################
-# 3. Tax revenue generated
-# To emit a ton of carbon in country X, you must pay a tax of $t. You will need to find the tax that accomplishes the desired reduction.
-# so is there no tax generated on this? Are we supposed to assume a certain tax amount? or is this 3.b)?</code></pre>
+<p>Perhaps create a table to show all the results.</p>
+<div id="below-this-point-is-a-work-in-progress" class="section level4">
+<h4>Below this point is a work in progress</h4>
 <pre class="r"><code># 3. b) Tax on carbon
 #calculating an aggregate supply curve (Sag = MagP + Bag)
 
-Mag =(1/mc_a_lm$coefficients[2])+(1/mc_b_lm$coefficients[2])+(1/mc_c_lm$coefficients[2])
-Bag = (-(mc_a_lm$coefficients[1]/mc_a_lm$coefficients[2])-(mc_b_lm$coefficients[1]/mc_b_lm$coefficients[2])-(mc_c_lm$coefficients[1]/mc_c_lm$coefficients[2]))
+Mag =(1/mc_a_lm$coefficients[2])+(1/mc_b_lm$coefficients[2])+(1/mc_c_lm$coefficients[2]) # aggregate slope
+Bag = (-(mc_a_lm$coefficients[1]/mc_a_lm$coefficients[2])-(mc_b_lm$coefficients[1]/mc_b_lm$coefficients[2])-(mc_c_lm$coefficients[1]/mc_c_lm$coefficients[2])) # aggregate y-intercept
 
-# Sag = 8.04x -17
+# Sag = 8.04*P -17
 
+# this function rearranges aggregate supply curve in terms of price
+agsupply = function(x) {
+  (x - Bag)/Mag
+}
 
+#to find the tax, plug in aggregate supply of 300 
+taxprice = agsupply(300)
+taxprice</code></pre>
+<pre><code>## (Intercept) 
+##    39.42658</code></pre>
+<pre class="r"><code># Tax price = $39.42
+
+# to find supply of 
 supplyA = function(x){
   (x - mc_a_lm$coefficients[1])/(mc_a_lm$coefficients[2])
   }
@@ -537,18 +514,46 @@ supplyC = function(x){
 }
 
 
-agsupply = function(x) {
-  (x + Bag)/Mag
-}
-taxprice = agsupply(300)
-taxprice</code></pre>
+supplyA(taxprice) # 83.33489 tons carbon</code></pre>
 <pre><code>## (Intercept) 
-##    35.19137</code></pre>
-<pre class="r"><code>supplyA(taxprice) +
-supplyB(taxprice) +
-supplyC(taxprice)</code></pre>
+##    83.33489</code></pre>
+<pre class="r"><code>supplyB(taxprice) # 151.4956 tons carbon</code></pre>
 <pre><code>## (Intercept) 
-##    265.9449</code></pre>
+##    151.4956</code></pre>
+<pre class="r"><code>supplyC(taxprice) # 65.16953 tons carbon</code></pre>
+<pre><code>## (Intercept) 
+##    65.16953</code></pre>
+<pre class="r"><code>supplyTot = supplyA(taxprice) + supplyB(taxprice) +supplyC(taxprice) # Checked that the sum is 300. It is.
+
+# Becky and Tara got similar numbers</code></pre>
+<pre class="r"><code># 3b question:
+# 1. Total cost of meeting target in country X
+
+# reduced carbon emissions for each sector
+# Using marginal cost curves
+# integrate the area under the marginal abatement cost curves for 0 to 100 tons of carbon abatement
+# gives total cost of carbon abatement for 100 tons carbon for each sector
+# sum the the total costs for each sector to get the total cost for country X
+
+lossA_tax_cost = integrate(curve_a, 0, supplyA(taxprice))
+lossB_tax_cost = integrate(curve_b, 0, supplyB(taxprice))
+lossC_tax_cost = integrate(curve_c, 0, supplyC(taxprice))
+country_loss_tax_cost = lossA_tax_cost$value + lossB_tax_cost$value + lossC_tax_cost$value  
+
+# The total cost of meeting carbon targets in country X is $5,879.81.
+
+
+################################
+# 2. Total cost for each sector
+country_loss_tax_cost_a = lossA_tax_cost$value # $1,282.61 Sector A
+country_loss_tax_cost_b = lossB_tax_cost$value # $3692.27 Sector B
+country_loss_tax_cost_c = lossC_tax_cost$value # $904.93 Sector C
+
+
+################################
+# 3. Tax revenue generated
+# To emit a ton of carbon in country X, you must pay a tax of $t. You will need to find the tax that accomplishes the desired reduction.</code></pre>
+</div>
 </div>
 <div id="total-cost-or-benefit-to-each-sector" class="section level1">
 <h1>2. Total cost (or benefit) to each sector</h1>
